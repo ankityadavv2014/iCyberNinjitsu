@@ -79,7 +79,7 @@ router.get('/', asyncHandler(async (req, res) => {
     const evidence = await getEvidenceForTrendItem(r.trend_item_id);
     return {
       ...mapDraft(r),
-      publishFailedReason: r.publish_failed_reason ?? undefined,
+      publishFailedReason: (r as any).publish_failed_reason ?? undefined,
       evidence: evidence ?? undefined,
     };
   }));

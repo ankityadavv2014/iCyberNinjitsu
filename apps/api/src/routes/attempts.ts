@@ -51,20 +51,20 @@ router.get('/', asyncHandler(async (req, res) => {
   sql += ' ORDER BY pa.attempted_at DESC LIMIT 100';
   const { rows } = await query(sql, params);
   res.json({
-    items: rows.map((r: { id: string; schedule_job_id: string; success: boolean; response_status: number | null; response_body: string | null; error_message: string | null; attempted_at: Date; posted_content: string | null; platform: string | null; linkedin_post_url: string | null; post_urn: string | null; rolled_back: boolean; rolled_back_at: Date | null; draft_content: string }) => ({
-      id: r.id,
-      scheduleJobId: r.schedule_job_id,
-      success: r.success,
-      responseStatus: r.response_status,
-      responseBody: r.response_body,
-      errorMessage: r.error_message,
-      attemptedAt: r.attempted_at,
-      content: r.posted_content ?? r.draft_content,
-      platform: r.platform ?? 'linkedin',
-      linkedInPostUrl: r.linkedin_post_url,
-      postUrn: r.post_urn,
-      rolledBack: r.rolled_back ?? false,
-      rolledBackAt: r.rolled_back_at,
+    items: rows.map((r) => ({
+      id: (r as any).id,
+      scheduleJobId: (r as any).schedule_job_id,
+      success: (r as any).success,
+      responseStatus: (r as any).response_status,
+      responseBody: (r as any).response_body,
+      errorMessage: (r as any).error_message,
+      attemptedAt: (r as any).attempted_at,
+      content: (r as any).posted_content ?? (r as any).draft_content,
+      platform: (r as any).platform ?? 'linkedin',
+      linkedInPostUrl: (r as any).linkedin_post_url,
+      postUrn: (r as any).post_urn,
+      rolledBack: (r as any).rolled_back ?? false,
+      rolledBackAt: (r as any).rolled_back_at,
     })),
   });
 }));

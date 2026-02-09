@@ -23,15 +23,15 @@ router.get('/', asyncHandler(async (req, res) => {
   sql += ' ORDER BY created_at DESC LIMIT 200';
   const { rows } = await query(sql, params);
   res.json({
-    items: rows.map((r: { id: string; workspace_id: string | null; actor_id: string | null; action: string; resource_type: string; resource_id: string; payload: unknown; created_at: Date }) => ({
-      id: r.id,
-      workspaceId: r.workspace_id,
-      actorId: r.actor_id,
-      action: r.action,
-      resourceType: r.resource_type,
-      resourceId: r.resource_id,
-      payload: r.payload,
-      createdAt: r.created_at,
+    items: rows.map((r) => ({
+      id: (r as any).id,
+      workspaceId: (r as any).workspace_id,
+      actorId: (r as any).actor_id,
+      action: (r as any).action,
+      resourceType: (r as any).resource_type,
+      resourceId: (r as any).resource_id,
+      payload: (r as any).payload,
+      createdAt: (r as any).created_at,
     })),
   });
 }));
