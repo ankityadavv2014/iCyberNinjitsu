@@ -59,6 +59,8 @@ export default function PipelineTopicsPage() {
   const [pinningId, setPinningId] = useState<string | null>(null);
   const [topicsPage, setTopicsPage] = useState(0);
   const [viewpointOpen, setViewpointOpen] = useState(false);
+  const [sourcesCount, setSourcesCount] = useState(0);
+  const [trendFilter, setTrendFilter] = useState<'all' | 'hot'>('all');
   const TOPICS_PAGE_SIZE = 10;
 
   const fetchDiscovery = useCallback(() => {
@@ -76,10 +78,12 @@ export default function PipelineTopicsPage() {
     Promise.all([
       api<{ items: Topic[] }>(`/workspaces/${workspaceId}/topics`),
       api<{ items: TopicBundle[] }>(`/workspaces/${workspaceId}/topic-bundles`),
+      api<{ items: unknown[] }>(`/workspaces/${workspaceId}/sources`).catch(() => ({ items: [] as unknown[] })),
     ])
-      .then(([topicsRes, bundlesRes]) => {
+      .then(([topicsRes, bundlesRes, sourcesRes]) => {
         setTopics(topicsRes.items ?? []);
         setBundles(bundlesRes.items ?? []);
+        setSourcesCount(sourcesRes.items?.length ?? 0);
       })
       .catch(() => { setTopics([]); setBundles([]); })
       .finally(() => setLoading(false));
@@ -191,8 +195,8 @@ export default function PipelineTopicsPage() {
         </svg>
       ),
       description: 'RSS, Reddit, News',
-      count: topics.length > 0 ? undefined : undefined,
-      status: 'active' as const,
+      count: sourcesCount,
+      status: activeView === 'sources' ? 'active' as const : sourcesCount > 0 ? 'pending' as const : 'idle' as const,
     },
     {
       id: 'trends',
@@ -204,7 +208,7 @@ export default function PipelineTopicsPage() {
       ),
       description: 'Hot items from feed',
       count: discovery?.items.length,
-      status: discovery && discovery.items.length > 0 ? 'active' : 'idle' as const,
+      status: activeView === 'trends' ? 'active' as const : (discoveryLoading ? 'pending' as const : (discovery && discovery.items.length > 0 ? 'pending' as const : 'idle' as const)),
     },
     {
       id: 'topics',
@@ -216,20 +220,49 @@ export default function PipelineTopicsPage() {
       ),
       description: 'Pinned keywords',
       count: topics.length,
-      status: topics.length > 0 ? 'active' : 'idle' as const,
+      status: activeView === 'topics' ? 'active' as const : (topics.length > 0 ? 'pending' as const : 'idle' as const),
     },
   ];
 
   return (
     <>
-      {/* Visual Pipeline Flow */}
+      {/* Content Studio pipeline */}
       <Card className="mb-8 overflow-hidden border-0 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950">
         <div className="p-8">
           <div className="mb-6 text-center">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Discovery Pipeline</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Click a stage to view or manage</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Content studio</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Signals → trends → topics that feed your drafts</p>
           </div>
           <PipelineFlow nodes={pipelineNodes} activeNodeId={activeView} onNodeClick={(id) => setActiveView(id as 'sources' | 'trends' | 'topics')} />
+          {/* Source health + trend filters */}
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 text-xs">
+            <div className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
+              <span className="uppercase tracking-[0.18em] text-[10px] text-gray-400">Source health</span>
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gray-900/80 text-gray-100">
+                <span className={`w-1.5 h-1.5 rounded-full ${sourcesCount > 0 ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+                {sourcesCount > 0 ? `${sourcesCount} source${sourcesCount === 1 ? '' : 's'} configured` : 'No sources yet'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="uppercase tracking-[0.18em] text-[10px] text-gray-400">Trend view</span>
+              <div className="inline-flex items-center gap-1 rounded-full bg-gray-900/80 p-1">
+                <button
+                  type="button"
+                  onClick={() => setTrendFilter('all')}
+                  className={`px-2 py-0.5 rounded-full text-[11px] ${trendFilter === 'all' ? 'bg-blue-500 text-white' : 'text-gray-300 hover:bg-gray-800'}`}
+                >
+                  All
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTrendFilter('hot')}
+                  className={`px-2 py-0.5 rounded-full text-[11px] ${trendFilter === 'hot' ? 'bg-blue-500 text-white' : 'text-gray-300 hover:bg-gray-800'}`}
+                >
+                  Hot only
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </Card>
 
@@ -252,7 +285,9 @@ export default function PipelineTopicsPage() {
               </div>
             )}
             <ul className="space-y-2">
-              {discovery.items.map((t) => (
+              {discovery.items
+                .filter((t) => trendFilter === 'all' ? true : (t.hotScore ?? 0) >= 0.5)
+                .map((t) => (
                 <li key={t.id} className="flex items-center justify-between gap-3 py-2 border-b border-gray-100 last:border-0">
                   <a href={t.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-gray-900 dark:text-gray-100 hover:text-primary line-clamp-1 flex-1 min-w-0">
                     {t.title}

@@ -28,6 +28,7 @@ function formatTimeAgo(iso: string | null): string {
 
 function StatusStrip({ workspaceId }: { workspaceId: string }) {
   const [status, setStatus] = useState<PipelineStatus | null>(null);
+  const { theme, setTheme } = useTheme();
   const fetchStatus = useCallback(() => {
     api<PipelineStatus>(`/workspaces/${workspaceId}/pipeline-status`)
       .then(setStatus)
@@ -40,20 +41,32 @@ function StatusStrip({ workspaceId }: { workspaceId: string }) {
   }, [fetchStatus]);
   if (!status) return null;
   return (
-    <div className="shrink-0 border-b border-gray-200 dark:border-gray-700 bg-white/95 dark:bg-gray-900/95 px-6 py-2 text-xs text-gray-600 dark:text-gray-300 flex flex-wrap items-center gap-4">
-      <span>Last ingest: {formatTimeAgo(status.lastIngestAt)}</span>
-      <span>Queue: {status.queuePending}</span>
-      {status.successRate != null && <span>Publish success: {status.successRate}%</span>}
+    <div className="shrink-0 border-b border-gray-200 dark:border-gray-700 bg-white/95 dark:bg-gray-900/95 px-6 py-2 text-xs text-gray-600 dark:text-gray-300 flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center gap-4">
+        <span>Last ingest: {formatTimeAgo(status.lastIngestAt)}</span>
+        <span>Queue: {status.queuePending}</span>
+        {status.successRate != null && <span>Publish success: {status.successRate}%</span>}
+      </div>
+      <button
+        type="button"
+        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+        className="rounded-full p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+        aria-label="Toggle theme"
+      >
+        {theme === 'dark' ? (
+          <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" /></svg>
+        ) : (
+          <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" /></svg>
+        )}
+      </button>
     </div>
   );
 }
 
 /* Icons for collapsed sidebar (24x24 outline) */
-const IconDiscovery = () => (
+const IconContentStudio = () => (
   <svg className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-);
-const IconSources = () => (
-  <svg className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
 );
 const IconDrafts = () => (
   <svg className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
@@ -75,8 +88,7 @@ const IconDashboard = () => (
 );
 
 const pipelineNav = [
-  { href: '/pipeline/topics', label: 'Discovery', icon: IconDiscovery },
-  { href: '/pipeline/sources', label: 'Sources', icon: IconSources },
+  { href: '/pipeline/topics', label: 'Content studio', icon: IconContentStudio },
   { href: '/pipeline/drafts', label: 'Drafts', icon: IconDrafts },
 ];
 
@@ -149,7 +161,7 @@ export function DashboardShell({
     <div className="flex min-h-screen bg-gray-50/80 dark:bg-gray-900 bg-grid-pattern dark:bg-none bg-grid">
       <aside className={`icn-sidebar ${sidebarCollapsed ? 'w-16' : 'w-60'} flex-shrink-0 border-r border-gray-200/80 dark:border-gray-700 bg-white/95 dark:bg-gray-900/95 shadow-sm backdrop-blur-sm`}>
         <div className="sticky top-0 flex h-screen flex-col p-4">
-          {/* Top row: logo + sidebar chrome */}
+          {/* Top row: logo + sidebar chrome (no theme toggle here) */}
           {sidebarCollapsed ? (
             <div className="flex flex-col items-center gap-2 mb-4">
               <Link
@@ -167,19 +179,6 @@ export function DashboardShell({
                 aria-label="Expand sidebar"
               >
                 <svg className="h-5 w-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>
-              </button>
-              <button
-                type="button"
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
-                className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
-                aria-label="Toggle theme"
-              >
-                {theme === 'dark' ? (
-                  <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" /></svg>
-                ) : (
-                  <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" /></svg>
-                )}
               </button>
             </div>
           ) : (
@@ -201,19 +200,6 @@ export function DashboardShell({
                   aria-label="Collapse sidebar"
                 >
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                  title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
-                  className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
-                  aria-label="Toggle theme"
-                >
-                  {theme === 'dark' ? (
-                    <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" /></svg>
-                  ) : (
-                    <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" /></svg>
-                  )}
                 </button>
               </div>
             </div>

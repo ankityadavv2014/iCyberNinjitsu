@@ -13,7 +13,15 @@ import { EmptyState } from '@/components/EmptyState';
 import { SkeletonList } from '@/components/Skeleton';
 import { useToast } from '@/components/Toast';
 
-export type Source = { id: string; type: string; config: Record<string, unknown>; enabled: boolean; status?: string };
+export type Source = {
+  id: string;
+  type: string;
+  config: Record<string, unknown>;
+  enabled: boolean;
+  status?: string;
+  lastFetchAt?: string | null;
+  lastError?: string | null;
+};
 
 const SUGGESTED_SOURCES: { label: string; type: string; config: Record<string, unknown> }[] = [
   { label: 'CISA (US gov alerts)', type: 'rss', config: { url: 'https://www.cisa.gov/uscert/ncas/current-activity.xml' } },
@@ -137,9 +145,41 @@ export function SourcesPanel() {
 
   const existingUrls = new Set(sources.map((s) => ((s.config as Record<string, string>).url ?? (s.config as Record<string, string>).subreddit ?? '').toLowerCase()));
 
+  const activeCount = sources.filter((s) => (s.status ?? 'active') === 'active').length;
+  const candidateCount = sources.filter((s) => s.status === 'candidate').length;
+  const disabledCount = sources.filter((s) => s.status === 'disabled' || !s.enabled).length;
+  const errorCount = sources.filter((s) => s.lastError).length;
+
   return (
     <>
-      <Card className="mb-8">
+      {/* Sources HUD strip */}
+      <Card className="mb-6 bg-slate-950/40 dark:bg-slate-950/60 border-slate-800/70">
+        <CardHeader>
+          <CardTitle className="text-sm uppercase tracking-[0.18em] text-gray-400 mb-2">Sources HUD</CardTitle>
+          <div className="flex flex-wrap items-center gap-3 text-xs text-gray-300">
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gray-900/80">
+              <span className={`w-1.5 h-1.5 rounded-full ${activeCount > 0 ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+              {activeCount} active
+            </span>
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gray-900/80">
+              <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
+              {candidateCount} candidate
+            </span>
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gray-900/80">
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-500" />
+              {disabledCount} disabled
+            </span>
+            {errorCount > 0 && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-900/40 text-red-300">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                {errorCount} with errors
+              </span>
+            )}
+          </div>
+        </CardHeader>
+      </Card>
+
+      <Card className="mb-8 bg-slate-950/40 dark:bg-slate-950/60 border-slate-800/70">
         <CardHeader>
           <CardTitle>Suggested sources</CardTitle>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">One-click add from common providers. Duplicates are skipped.</p>
@@ -163,7 +203,7 @@ export function SourcesPanel() {
         </div>
       </Card>
 
-      <Card className="mb-8">
+      <Card className="mb-8 bg-slate-950/40 dark:bg-slate-950/60 border-slate-800/70">
         <CardHeader>
           <CardTitle>Add a source</CardTitle>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -227,7 +267,7 @@ export function SourcesPanel() {
         </form>
       </Card>
 
-      <Card className="mb-8">
+      <Card className="mb-8 bg-slate-950/40 dark:bg-slate-950/60 border-slate-800/70">
         <CardHeader>
           <CardTitle>Your sources</CardTitle>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Active = ingested by pipeline. Candidate = pending. Disabled = excluded.</p>
@@ -251,24 +291,34 @@ export function SourcesPanel() {
         ) : (
           <ul className="space-y-3">
             {sources.map((s) => (
-              <li key={s.id} className="flex flex-wrap items-center gap-3 text-sm">
-                <Badge status={s.status === 'active' ? 'completed' : s.status === 'candidate' ? 'pending' : 'cancelled'}>
-                  {s.status ?? 'active'}
-                </Badge>
-                <span className="font-medium text-gray-900 dark:text-gray-100">{s.type}</span>
-                <span className="text-gray-700 dark:text-gray-300 truncate flex-1 min-w-0">
-                  {(s.config as Record<string, string>).subreddit && `r/${(s.config as Record<string, string>).subreddit}`}
-                  {(s.config as Record<string, string>).query && `"${(s.config as Record<string, string>).query}"`}
-                  {(s.config as Record<string, string>).url && (s.config as Record<string, string>).url}
-                  {!(s.config as Record<string, string>).subreddit && !(s.config as Record<string, string>).query && !(s.config as Record<string, string>).url && JSON.stringify(s.config).slice(0, 60)}
-                </span>
-                {s.status === 'candidate' && (
-                  <Button variant="secondary" onClick={() => approveSource(s.id)} className="text-xs px-2 py-1">Activate</Button>
-                )}
-                {s.status === 'active' && (
-                  <Button variant="ghost" onClick={() => toggleSource(s.id, s.enabled)} className="text-xs px-2 py-1">{s.enabled ? 'Disable' : 'Enable'}</Button>
-                )}
-                <Button variant="danger" onClick={() => deleteSource(s.id)} className="text-xs px-2 py-1">Delete</Button>
+              <li key={s.id} className="flex flex-wrap items-start gap-3 text-sm rounded-lg bg-slate-900/60 px-3 py-2 border border-slate-800/70">
+                <div className="flex items-center gap-2 min-w-[140px]">
+                  <Badge status={s.status === 'active' ? 'completed' : s.status === 'candidate' ? 'pending' : 'cancelled'}>
+                    {s.status ?? 'active'}
+                  </Badge>
+                  <span className="font-medium text-gray-100 uppercase tracking-[0.14em] text-[11px]">{s.type}</span>
+                </div>
+                <div className="flex-1 min-w-0 space-y-1">
+                  <span className="text-gray-300 truncate block">
+                    {(s.config as Record<string, string>).subreddit && `r/${(s.config as Record<string, string>).subreddit}`}
+                    {(s.config as Record<string, string>).query && `"${(s.config as Record<string, string>).query}"`}
+                    {(s.config as Record<string, string>).url && (s.config as Record<string, string>).url}
+                    {!(s.config as Record<string, string>).subreddit && !(s.config as Record<string, string>).query && !(s.config as Record<string, string>).url && JSON.stringify(s.config).slice(0, 60)}
+                  </span>
+                  <div className="flex flex-wrap gap-3 text-xs text-gray-500">
+                    {s.lastFetchAt && <span>Last fetch: {new Date(s.lastFetchAt).toLocaleString()}</span>}
+                    {s.lastError && <span className="text-red-400">Last error: {s.lastError.slice(0, 80)}{s.lastError.length > 80 ? '…' : ''}</span>}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {s.status === 'candidate' && (
+                    <Button variant="secondary" onClick={() => approveSource(s.id)} className="text-xs px-2 py-1">Activate</Button>
+                  )}
+                  {s.status === 'active' && (
+                    <Button variant="ghost" onClick={() => toggleSource(s.id, s.enabled)} className="text-xs px-2 py-1">{s.enabled ? 'Disable' : 'Enable'}</Button>
+                  )}
+                  <Button variant="danger" onClick={() => deleteSource(s.id)} className="text-xs px-2 py-1">Delete</Button>
+                </div>
               </li>
             ))}
           </ul>

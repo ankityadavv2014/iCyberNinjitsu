@@ -11,6 +11,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { SkeletonCard, SkeletonList } from '@/components/Skeleton';
 import { useToast } from '@/components/Toast';
 import { useInspector } from '@/contexts/InspectorContext';
+import { PipelineHUD, type PipelineHUDStep } from '@/components/PipelineHUD';
 
 type Draft = { id: string; content: string; status: string; postType: string };
 type Job = { id: string; approvedPostId: string; status: string };
@@ -221,11 +222,41 @@ export default function DashboardPage() {
     );
   }
 
+  const hudSteps: PipelineHUDStep[] = [
+    {
+      label: 'Fetch',
+      state: pipelineStep === 'fetching' ? 'active' : pipelineStep ? 'done' : 'idle',
+      statusLine: pipelineStep === 'fetching' ? 'Fetching sources…' : undefined,
+    },
+    {
+      label: 'Parse',
+      state: pipelineStep === 'ranking' || pipelineStep === 'ready' ? 'done' : pipelineStep ? 'active' : 'idle',
+      statusLine: pipelineStep === 'ranking' ? 'Parsing & clustering items…' : undefined,
+    },
+    {
+      label: 'Rank',
+      state: pipelineStep === 'ranking' ? 'active' : pipelineStep === 'ready' ? 'done' : 'idle',
+      statusLine: pipelineStep === 'ranking' ? 'Ranking momentum & confidence…' : undefined,
+    },
+    {
+      label: 'Generate',
+      state: pipelineStep === 'ready' ? 'active' : 'idle',
+      statusLine: pipelineStep === 'ready' ? 'Generating drafts from top signals…' : undefined,
+    },
+    {
+      label: 'Queue',
+      state: pipelineStep === 'ready' ? 'active' : 'idle',
+    },
+  ];
+
   return (
     <div className="animate-fade-in">
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+      {/* Global pipeline HUD */}
+      <PipelineHUD steps={hudSteps} onViewLogs={() => window.location.assign('/operate/logs')} />
+
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-4 mt-4">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Control Center</h1>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-50">Control Center</h1>
           <p className="text-sm text-gray-500 dark:text-gray-300 mt-0.5">{wsInfo?.name ?? 'Workspace'} · at-a-glance</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -253,11 +284,15 @@ export default function DashboardPage() {
 
       {/* 2x2 mission control grid: panels with internal scroll */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Heat Ladder — topics/trends by hotness */}
-        <Card className={`flex flex-col overflow-hidden ${PANEL_MAX_H}`}>
+        {/* Heat Ladder — signals by hotness */}
+        <Card className={`flex flex-col overflow-hidden bg-slate-950/40 dark:bg-slate-950/60 border-slate-800/70 ${PANEL_MAX_H}`}>
           <CardHeader className="shrink-0">
+            <div className="flex items-center justify-between text-xs text-gray-400 uppercase tracking-[0.18em] mb-1">
+              <span>Signals</span>
+              <span className="text-[10px] text-gray-500">Ladder</span>
+            </div>
             <div className="flex items-center justify-between">
-              <CardTitle>Heat Ladder</CardTitle>
+              <CardTitle>Signal ladder</CardTitle>
               <Link href="/pipeline/topics" className="text-xs text-primary hover:underline">Discovery</Link>
             </div>
             {discovery?.sparkline?.length ? (
@@ -382,10 +417,14 @@ export default function DashboardPage() {
         </Card>
 
         {/* Action Queue: momentum-triggered decisions, then recent drafts */}
-        <Card className={`flex flex-col overflow-hidden ${PANEL_MAX_H}`}>
+        <Card className={`flex flex-col overflow-hidden bg-slate-950/40 dark:bg-slate-950/60 border-slate-800/70 ${PANEL_MAX_H}`}>
           <CardHeader className="shrink-0">
+            <div className="flex items-center justify-between text-xs text-gray-400 uppercase tracking-[0.18em] mb-1">
+              <span>Decisions</span>
+              <span className="text-[10px] text-gray-500">Queue</span>
+            </div>
             <div className="flex items-center justify-between">
-              <CardTitle>Action Queue</CardTitle>
+              <CardTitle>Action queue</CardTitle>
               <Link href="/pipeline/drafts" className="text-xs text-primary hover:underline">View all</Link>
             </div>
             {stats != null && (
@@ -458,7 +497,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* Publish Timeline */}
-        <Card className={`flex flex-col overflow-hidden ${PANEL_MAX_H}`}>
+        <Card className={`flex flex-col overflow-hidden bg-slate-950/40 dark:bg-slate-950/60 border-slate-800/70 ${PANEL_MAX_H}`}>
           <CardHeader className="shrink-0">
             <div className="flex items-center justify-between">
               <CardTitle>Publish Timeline</CardTitle>
@@ -487,7 +526,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* Pipeline Health */}
-        <Card className={`flex flex-col overflow-hidden ${PANEL_MAX_H}`}>
+        <Card className={`flex flex-col overflow-hidden bg-slate-950/40 dark:bg-slate-950/60 border-slate-800/70 ${PANEL_MAX_H}`}>
           <CardHeader className="shrink-0">
             <CardTitle>Pipeline Health</CardTitle>
           </CardHeader>

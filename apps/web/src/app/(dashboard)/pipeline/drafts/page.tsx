@@ -358,8 +358,8 @@ export default function PipelineDraftsPage() {
       </div>
 
       <div className="flex flex-1 min-h-0 gap-4">
-        <div className="w-[40%] min-w-[280px] flex flex-col rounded-xl border border-gray-100 bg-white shadow-card overflow-hidden">
-          <div className="shrink-0 flex items-center gap-2 px-3 py-2 border-b border-gray-100">
+        <div className="w-[40%] min-w-[280px] flex flex-col rounded-xl border border-slate-800/70 bg-slate-950/60 overflow-hidden">
+          <div className="shrink-0 flex items-center gap-2 px-3 py-2 border-b border-slate-800">
             <input
               type="checkbox"
               checked={items.length > 0 && selectedIds.size >= items.length}
@@ -433,7 +433,7 @@ export default function PipelineDraftsPage() {
           )}
         </div>
 
-        <div className="flex-1 min-w-0 flex items-center justify-center rounded-xl border border-gray-100 bg-white/50 text-sm text-gray-500">
+        <div className="flex-1 min-w-0 flex items-center justify-center rounded-xl border border-slate-800/70 bg-slate-950/60 text-sm text-gray-400">
           {selectedId ? (detailLoading ? 'Loading…' : 'Draft detail in Inspector →') : 'Select a draft to view in the Inspector'}
         </div>
       </div>
