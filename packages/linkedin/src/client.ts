@@ -93,7 +93,8 @@ export function createLinkedInClient(config: LinkedInClientConfig) {
           Authorization: `Bearer ${config.accessToken}`,
           'Content-Type': 'application/octet-stream',
         },
-        body: imageBuffer,
+        // Cast to BodyInit to satisfy both Node and DOM fetch typings
+        body: imageBuffer as unknown as BodyInit,
       });
 
       if (!uploadRes.ok) {
