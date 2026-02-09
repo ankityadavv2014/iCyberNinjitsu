@@ -29,7 +29,7 @@ router.get('/momentum', asyncHandler(async (req, res) => {
     [wId, limit]
   );
   res.json({
-    items: rows.map((r) => ({
+    items: rows.map((r: any) => ({
       id: r.id,
       label: r.label,
       keywords: r.keywords,
@@ -65,8 +65,8 @@ router.get('/topic-clusters/:topicId', asyncHandler(async (req, res) => {
   );
   res.json({
     topic: { id: topic[0].id, label: topic[0].label, keywords: topic[0].keywords },
-    topSources: topSources.map((r) => ({ sourceId: r.source_id, strength: Number(r.strength), frequency: r.frequency, type: r.type, config: r.config })),
-    recommendedStrategies: strategies.map((r) => ({ id: r.id, name: r.name, slug: r.slug, description: r.description })),
+    topSources: topSources.map((r: any) => ({ sourceId: r.source_id, strength: Number(r.strength), frequency: r.frequency, type: r.type, config: r.config })),
+    recommendedStrategies: strategies.map((r: any) => ({ id: r.id, name: r.name, slug: r.slug, description: r.description })),
   });
 }));
 
@@ -78,17 +78,17 @@ router.get('/discovery', asyncHandler(async (req, res) => {
     `SELECT id, source_id, fetched_at, title, url, score FROM trend_items WHERE workspace_id = $1 AND fetched_at >= $2 ORDER BY fetched_at DESC`,
     [wId, since]
   );
-  const hotnessItems: HotnessItem[] = allRows.map((r) => ({ fetched_at: r.fetched_at, source_id: r.source_id }));
+  const hotnessItems: HotnessItem[] = allRows.map((r: any) => ({ fetched_at: r.fetched_at, source_id: r.source_id }));
   const now = new Date();
-  const withScore = allRows.map((r) => ({
+  const withScore = allRows.map((r: any) => ({
     ...r,
     hotScore: computeHotScore({ fetched_at: r.fetched_at, source_id: r.source_id }, hotnessItems, now),
   }));
-  withScore.sort((a, b) => b.hotScore - a.hotScore);
+  withScore.sort((a: any, b: any) => b.hotScore - a.hotScore);
   const top = withScore.slice(0, limit);
-  const sparkline = computeSparkline(allRows.map((r) => ({ fetched_at: r.fetched_at })), now, 6, 28);
+  const sparkline = computeSparkline(allRows.map((r: any) => ({ fetched_at: r.fetched_at })), now, 6, 28);
   res.json({
-    items: top.map((r) => ({
+    items: top.map((r: any) => ({
       id: r.id,
       title: r.title,
       url: r.url,
@@ -117,7 +117,7 @@ router.get('/', asyncHandler(async (req, res) => {
   params.push(limit);
   const { rows } = await query<{ id: string; workspace_id: string; source_id: string; url: string; url_hash: string; title: string; summary: string | null; score: number | null; fetched_at: Date }>(sql, params);
   res.json({
-    items: rows.map((r) => ({
+    items: rows.map((r: any) => ({
       id: r.id,
       workspaceId: r.workspace_id,
       sourceId: r.source_id,

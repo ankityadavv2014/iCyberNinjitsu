@@ -16,7 +16,16 @@ router.get('/', asyncHandler(async (req, res) => {
   if (bundleId) { sql += ' AND bundle_id = $2'; params.push(bundleId); }
   sql += ' ORDER BY created_at';
   const { rows } = await query<{ id: string; workspace_id: string; keyword: string; weight: number; bundle_id: string | null; created_at: Date }>(sql, params);
-  res.json({ items: rows.map((r) => ({ id: r.id, workspaceId: r.workspace_id, keyword: r.keyword, weight: Number(r.weight), bundleId: r.bundle_id, createdAt: r.created_at })) });
+  res.json({
+    items: rows.map((r: any) => ({
+      id: r.id,
+      workspaceId: r.workspace_id,
+      keyword: r.keyword,
+      weight: Number(r.weight),
+      bundleId: r.bundle_id,
+      createdAt: r.created_at,
+    })),
+  });
 }));
 
 /** Pin a trend item as a topic (creates a topic with keyword from trend title or provided). */

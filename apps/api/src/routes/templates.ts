@@ -14,14 +14,14 @@ router.get('/', asyncHandler(async (req, res) => {
     [req.workspaceId]
   );
   res.json({
-    items: rows.map((r) => ({
-      id: (r as any).id,
-      workspaceId: (r as any).workspace_id,
-      name: (r as any).name,
-      postType: (r as any).post_type,
-      body: (r as any).body,
-      variables: (r as any).variables,
-      createdAt: (r as any).created_at,
+    items: rows.map((r: any) => ({
+      id: r.id,
+      workspaceId: r.workspace_id,
+      name: r.name,
+      postType: r.post_type,
+      body: r.body,
+      variables: r.variables,
+      createdAt: r.created_at,
     })),
   });
 }));

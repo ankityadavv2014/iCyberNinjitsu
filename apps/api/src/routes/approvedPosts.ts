@@ -20,7 +20,7 @@ router.get('/', asyncHandler(async (req, res) => {
     [wId]
   );
   res.json({
-    items: rows.map((r) => ({
+    items: rows.map((r: any) => ({
       id: r.id,
       draftPostId: r.draft_post_id,
       approvedAt: r.approved_at,

@@ -17,7 +17,7 @@ router.get('/', asyncHandler(async (req, res) => {
     [wId]
   );
   res.json({
-    items: rows.map((r) => ({
+    items: rows.map((r: any) => ({
       id: r.id,
       workspaceId: r.workspace_id,
       name: r.name,

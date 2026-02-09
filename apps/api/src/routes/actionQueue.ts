@@ -32,7 +32,7 @@ router.get('/', asyncHandler(async (req, res) => {
     [wId, status, limit]
   );
   res.json({
-    items: rows.map((r) => ({
+    items: rows.map((r: any) => ({
       id: r.id,
       workspaceId: r.workspace_id,
       topicId: r.topic_id,

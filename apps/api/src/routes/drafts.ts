@@ -75,7 +75,7 @@ router.get('/', asyncHandler(async (req, res) => {
   const total = parseInt(countResult.rows[0]?.count ?? '0', 10);
   const rows = listResult.rows;
 
-  const items = await Promise.all(rows.map(async (r) => {
+  const items = await Promise.all(rows.map(async (r: any) => {
     const row = r as DraftRow & { publish_failed_reason: string | null };
     const evidence = await getEvidenceForTrendItem(row.trend_item_id);
     return {
@@ -237,11 +237,16 @@ router.get('/:id/versions', asyncHandler(async (req, res) => {
     [req.params.id]
   );
   const currentVersion = draft[0].version;
-  const byVersion = new Map(history.map((r) => [r.version, { version: r.version, content: r.content, createdAt: r.created_at }]));
+  const byVersion = new Map<number, { version: number; content: string; createdAt: Date | null }>();
+  for (const r of history) {
+    byVersion.set(r.version, { version: r.version, content: r.content, createdAt: r.created_at });
+  }
   byVersion.set(currentVersion, { version: currentVersion, content: draft[0].content, createdAt: draft[0].created_at });
-  const items = Array.from(byVersion.entries())
-    .map(([, v]) => ({ ...v, current: v.version === currentVersion }))
-    .sort((a, b) => b.version - a.version);
+  const items: { version: number; content: string; createdAt: Date | null; current: boolean }[] = [];
+  for (const [, v] of byVersion.entries()) {
+    items.push({ ...v, current: v.version === currentVersion });
+  }
+  items.sort((a, b) => b.version - a.version);
   res.json({ items });
 }));
 

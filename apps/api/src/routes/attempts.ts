@@ -25,11 +25,12 @@ router.get('/duplicates', asyncHandler(async (req, res) => {
      SELECT attempt_id, approved_post_id, rn FROM ranked r WHERE rn > 1`,
     [wId]
   );
-  const duplicateAttemptIds = dupRows.map((r) => r.attempt_id);
+  const duplicateAttemptIds = dupRows.map((r: any) => r.attempt_id);
   const byAp = new Map<string, string[]>();
   for (const r of dupRows) {
-    if (!byAp.has(r.approved_post_id)) byAp.set(r.approved_post_id, []);
-    byAp.get(r.approved_post_id)!.push(r.attempt_id);
+    const row = r as any;
+    if (!byAp.has(row.approved_post_id)) byAp.set(row.approved_post_id, []);
+    byAp.get(row.approved_post_id)!.push(row.attempt_id);
   }
   const groups = Array.from(byAp.entries()).map(([approvedPostId, duplicateAttemptIds]) => ({ approvedPostId, duplicateAttemptIds }));
   res.json({ duplicateAttemptIds, groups });
@@ -51,20 +52,20 @@ router.get('/', asyncHandler(async (req, res) => {
   sql += ' ORDER BY pa.attempted_at DESC LIMIT 100';
   const { rows } = await query(sql, params);
   res.json({
-    items: rows.map((r) => ({
-      id: (r as any).id,
-      scheduleJobId: (r as any).schedule_job_id,
-      success: (r as any).success,
-      responseStatus: (r as any).response_status,
-      responseBody: (r as any).response_body,
-      errorMessage: (r as any).error_message,
-      attemptedAt: (r as any).attempted_at,
-      content: (r as any).posted_content ?? (r as any).draft_content,
-      platform: (r as any).platform ?? 'linkedin',
-      linkedInPostUrl: (r as any).linkedin_post_url,
-      postUrn: (r as any).post_urn,
-      rolledBack: (r as any).rolled_back ?? false,
-      rolledBackAt: (r as any).rolled_back_at,
+    items: rows.map((r: any) => ({
+      id: r.id,
+      scheduleJobId: r.schedule_job_id,
+      success: r.success,
+      responseStatus: r.response_status,
+      responseBody: r.response_body,
+      errorMessage: r.error_message,
+      attemptedAt: r.attempted_at,
+      content: r.posted_content ?? r.draft_content,
+      platform: r.platform ?? 'linkedin',
+      linkedInPostUrl: r.linkedin_post_url,
+      postUrn: r.post_urn,
+      rolledBack: r.rolled_back ?? false,
+      rolledBackAt: r.rolled_back_at,
     })),
   });
 }));
@@ -144,7 +145,7 @@ router.post('/rollback-duplicates', asyncHandler(async (req, res) => {
      SELECT attempt_id FROM ranked WHERE rn > 1`,
     [wId]
   );
-  const ids = dupRows.map((r) => r.attempt_id);
+  const ids = dupRows.map((r: any) => r.attempt_id);
   let rolledBack = 0;
   const errors: { attemptId: string; message: string }[] = [];
   for (const id of ids) {

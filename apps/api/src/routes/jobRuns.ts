@@ -26,7 +26,7 @@ router.get('/', asyncHandler(async (req, res) => {
 
   const { rows } = await query<{ id: string; workspace_id: string; stage: string; trigger_type: string; reference_id: string | null; status: string; started_at: Date; finished_at: Date | null; error_message: string | null }>(sql, params);
   res.json({
-    items: rows.map((r) => ({
+    items: rows.map((r: any) => ({
       id: r.id,
       workspaceId: r.workspace_id,
       stage: r.stage,

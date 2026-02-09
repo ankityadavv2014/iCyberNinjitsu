@@ -17,7 +17,7 @@ router.get('/', asyncHandler(async (req, res) => {
     [req.userId]
   );
   res.json({
-    items: rows.map((r) => ({
+    items: rows.map((r: any) => ({
       id: r.id,
       name: r.name,
       ownerId: r.owner_id,

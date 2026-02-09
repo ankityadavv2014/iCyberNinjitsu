@@ -18,7 +18,18 @@ router.get('/', asyncHandler(async (req, res) => {
   }
   sql += ' ORDER BY created_at';
   const { rows } = await query<{ id: string; workspace_id: string; type: string; config: unknown; enabled: boolean; status: string | null; trust_profile_id: string | null; created_at: Date }>(sql, params);
-  res.json({ items: rows.map((r) => ({ id: r.id, workspaceId: r.workspace_id, type: r.type, config: r.config, enabled: r.enabled, status: r.status ?? 'active', trustProfileId: r.trust_profile_id, createdAt: r.created_at })) });
+  res.json({
+    items: rows.map((r: any) => ({
+      id: r.id,
+      workspaceId: r.workspace_id,
+      type: r.type,
+      config: r.config,
+      enabled: r.enabled,
+      status: r.status ?? 'active',
+      trustProfileId: r.trust_profile_id,
+      createdAt: r.created_at,
+    })),
+  });
 }));
 
 router.post('/', asyncHandler(async (req, res) => {
