@@ -2,6 +2,8 @@ import { Job } from 'bullmq';
 import { query } from 'db';
 import { score } from 'rank';
 import { getGenerateQueue } from '../queues/generate.js';
+import { getMomentumQueue } from '../queues/momentum.js';
+import { insertJobRun, updateJobRun } from '../lib/jobRuns.js';
 
 export type RankJobPayload = { workspaceId: string; trendItemIds: string[] };
 
@@ -9,6 +11,8 @@ const MAX_GENERATE_PER_BATCH = 5;
 
 export async function processRankJob(job: Job<RankJobPayload>) {
   const { workspaceId, trendItemIds } = job.data;
+  const runId = await insertJobRun(workspaceId, 'rank', { referenceId: job.id, triggerType: 'api' });
+  try {
   const { rows: topics } = await query<{ keyword: string; weight: number }>(
     'SELECT keyword, weight FROM topics WHERE workspace_id = $1',
     [workspaceId]
@@ -55,5 +59,13 @@ export async function processRankJob(job: Job<RankJobPayload>) {
     console.log(`[rank] Queued ${topItems.length} generate jobs for workspace ${workspaceId}`);
   }
 
+  const momentumQueue = getMomentumQueue();
+  await momentumQueue.add('momentum', { workspaceId });
+
+  await updateJobRun(runId, 'completed');
   return { processed: true, count: trendItemIds.length, generated: topItems.length };
+  } catch (err) {
+    await updateJobRun(runId, 'failed', { errorMessage: err instanceof Error ? err.message : String(err) });
+    throw err;
+  }
 }

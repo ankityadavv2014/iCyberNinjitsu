@@ -3,11 +3,15 @@
 import { AuthGate } from '@/components/AuthGate';
 import { DashboardShell } from '@/components/DashboardShell';
 import { WorkspaceProvider, useWorkspace } from '@/contexts/WorkspaceContext';
+import { InspectorProvider } from '@/contexts/InspectorContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import { ToastProvider } from '@/components/Toast';
 
 function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   const { workspaceId, setWorkspaceId, workspaces } = useWorkspace();
   return (
+    <ThemeProvider>
+    <InspectorProvider>
     <DashboardShell
       workspaceId={workspaceId}
       workspaces={workspaces.map((w) => ({ id: w.id, name: w.paused ? `${w.name} (paused)` : w.name }))}
@@ -15,6 +19,8 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
     >
       {children}
     </DashboardShell>
+    </InspectorProvider>
+    </ThemeProvider>
   );
 }
 

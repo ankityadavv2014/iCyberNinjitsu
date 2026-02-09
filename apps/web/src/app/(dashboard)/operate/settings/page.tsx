@@ -400,27 +400,29 @@ export default function SettingsPage() {
         </div>
       </Card>
 
-      {/* Placeholder sections */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="opacity-60">
-          <CardHeader>
-            <CardTitle>Templates</CardTitle>
-          </CardHeader>
-          <p className="text-xs text-gray-400">Coming soon -- manage prompt templates for post generation.</p>
-        </Card>
-        <Card className="opacity-60">
-          <CardHeader>
-            <CardTitle>Policies</CardTitle>
-          </CardHeader>
-          <p className="text-xs text-gray-400">Coming soon -- configure brand voice, citation, and safety rules.</p>
-        </Card>
-        <Card className="opacity-60">
-          <CardHeader>
-            <CardTitle>Audit log</CardTitle>
-          </CardHeader>
-          <p className="text-xs text-gray-400">Coming soon -- view all actions taken in this workspace.</p>
-        </Card>
-      </div>
+      {/* Placeholder sections: hidden by default; set NEXT_PUBLIC_SHOW_SETTINGS_PLACEHOLDERS=true to show */}
+      {process.env.NEXT_PUBLIC_SHOW_SETTINGS_PLACEHOLDERS === 'true' && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="opacity-60">
+            <CardHeader>
+              <CardTitle>Templates</CardTitle>
+            </CardHeader>
+            <p className="text-xs text-gray-400">Coming soon -- manage prompt templates for post generation.</p>
+          </Card>
+          <Card className="opacity-60">
+            <CardHeader>
+              <CardTitle>Policies</CardTitle>
+            </CardHeader>
+            <p className="text-xs text-gray-400">Coming soon -- configure brand voice, citation, and safety rules.</p>
+          </Card>
+          <Card className="opacity-60">
+            <CardHeader>
+              <CardTitle>Audit log</CardTitle>
+            </CardHeader>
+            <p className="text-xs text-gray-400">Coming soon -- view all actions taken in this workspace.</p>
+          </Card>
+        </div>
+      )}
     </>
   );
 }

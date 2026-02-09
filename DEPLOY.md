@@ -1,19 +1,28 @@
-# Deploying Astra
+# Deploying iCyberNinjitsu
 
-## 1. Push to GitHub
+## 1. Create GitHub repo and push (one step)
 
-From your machine (repo root):
+A script creates the repo (if it doesn’t exist) and pushes `main` for you.
 
-```bash
-# If you haven't already: create a new repo on GitHub
-# https://github.com/new → name it e.g. "Astra" (or "astra"), leave it empty (no README/license).
+1. **Create a Personal Access Token (PAT)**  
+   - Go to [GitHub → Settings → Developer settings → Personal access tokens](https://github.com/settings/tokens).  
+   - “Generate new token (classic)”, name it e.g. `iCyberNinjitsu push`, enable scope **repo**.  
+   - Copy the token (starts with `ghp_`).
 
-git remote add origin https://github.com/ankityadavv2014/Astra.git
-git branch -M main
-git push -u origin main
-```
+2. **Add the token locally (never commit it)**  
+   In the repo root, create a file named **`.env.github`** with one line:
+   ```bash
+   GITHUB_TOKEN=ghp_your_pasted_token_here
+   ```
+   (The file is in `.gitignore` and will not be committed.)
 
-Replace `Astra` with your actual repo name if different. Use SSH if you prefer: `git@github.com:ankityadavv2014/Astra.git`.
+3. **Run the script** (from repo root):
+   ```bash
+   npm run github:push
+   ```
+   Or with custom owner/repo: `node --import tsx scripts/github-create-and-push.ts <owner> <repo>`.
+
+   The script will create `https://github.com/ankityadavv2014/iCyberNinjitsu` if it doesn’t exist and push your code. You can revoke the PAT after pushing if you prefer.
 
 ---
 
@@ -22,7 +31,7 @@ Replace `Astra` with your actual repo name if different. Use SSH if you prefer: 
 [Vercel](https://vercel.com) is recommended for the Next.js app (fast, free tier, automatic previews).
 
 1. Go to [vercel.com](https://vercel.com) and sign in with GitHub.
-2. **Import** your repo: `ankityadavv2014/Astra`.
+2. **Import** your repo: `ankityadavv2014/iCyberNinjitsu`.
 3. **Root Directory:** set to **`apps/web`** (so Vercel builds the Next.js app).
 4. **Framework Preset:** Next.js (auto-detected).
 5. **Environment variables** (add in Vercel project → Settings → Environment Variables):

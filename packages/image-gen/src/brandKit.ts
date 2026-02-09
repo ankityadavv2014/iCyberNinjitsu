@@ -1,17 +1,17 @@
 import type { BrandConfig } from './types.js';
 
 /**
- * Default Astra brand configuration for cybersecurity content.
+ * Default iCyberNinjitsu brand configuration for cybersecurity content.
  */
 export const DEFAULT_BRAND: BrandConfig = {
-  name: 'Astra',
+  name: 'iCyberNinjitsu',
   tagline: 'Cybersecurity Intelligence',
   primaryColor: '#0ea5e9',    // sky-500
   secondaryColor: '#1e293b',  // slate-800
   accentColor: '#22d3ee',     // cyan-400
   gradientFrom: '#0f172a',    // slate-900
   gradientTo: '#1e3a5f',      // dark blue
-  watermarkText: 'astra.ai',
+  watermarkText: 'icyberninjitsu.com',
 };
 
 /**

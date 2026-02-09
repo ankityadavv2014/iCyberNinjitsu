@@ -17,6 +17,9 @@ import { router as policiesRouter } from './routes/policies.js';
 import { router as auditRouter } from './routes/audit.js';
 import { router as autoScheduleRouter } from './routes/autoSchedule.js';
 import { router as providerConfigRouter } from './routes/providerConfig.js';
+import { router as pipelineStatusRouter } from './routes/pipelineStatus.js';
+import { router as jobRunsRouter } from './routes/jobRuns.js';
+import { router as actionQueueRouter } from './routes/actionQueue.js';
 
 const app = express();
 app.use(cors());
@@ -41,6 +44,9 @@ app.use('/workspaces/:workspaceId/policies', policiesRouter);
 app.use('/workspaces/:workspaceId/audit', auditRouter);
 app.use('/workspaces/:workspaceId/auto-schedule', autoScheduleRouter);
 app.use('/workspaces/:workspaceId/provider-config', providerConfigRouter);
+app.use('/workspaces/:workspaceId/pipeline-status', pipelineStatusRouter);
+app.use('/workspaces/:workspaceId/job-runs', jobRunsRouter);
+app.use('/workspaces/:workspaceId/action-queue', actionQueueRouter);
 app.get('/oauth/linkedin/callback', (req, res) => handleLinkedInCallback(req, res));
 
 // Global error handler -- catches all errors forwarded by asyncHandler

@@ -23,12 +23,12 @@ export function getMetrics(): string {
   const lines: string[] = [];
   for (const [name, map] of counters) {
     for (const [labels, value] of map) {
-      lines.push(`astra_${name}{${labels}} ${value}`);
+      lines.push(`icn_${name}{${labels}} ${value}`);
     }
   }
   for (const [name, map] of gauges) {
     for (const [labels, value] of map) {
-      lines.push(`astra_${name}{${labels}} ${value}`);
+      lines.push(`icn_${name}{${labels}} ${value}`);
     }
   }
   return lines.join('\n') || '# No metrics';

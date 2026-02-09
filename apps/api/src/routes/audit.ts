@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { query } from 'db';
 import { requireAuth } from '../middleware/auth.js';
-import { requireWorkspaceOwner } from '../middleware/workspaceAccess.js';
+import { requireWorkspaceMember } from '../middleware/workspaceAccess.js';
 import { asyncHandler } from '../lib/asyncHandler.js';
 
 export const router = Router({ mergeParams: true });
 
-router.use(requireAuth, requireWorkspaceOwner);
+router.use(requireAuth, requireWorkspaceMember);
 
 router.get('/', asyncHandler(async (req, res) => {
   const action = req.query.action as string | undefined;

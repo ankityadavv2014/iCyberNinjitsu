@@ -2,6 +2,85 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════════
+   iCyberNinjitsu Motion System + Design Tokens
+   ═══════════════════════════════════════════════════ */
+
+/* ── Motion tokens (non-negotiable) ── */
+:root {
+  /* Easing: easeOutQuint for all motion */
+  --icn-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Timing */
+  --icn-dur-micro: 150ms;    /* hover, click, focus */
+  --icn-dur-ui: 260ms;       /* panel open, route, sidebar */
+  --icn-dur-hero: 800ms;     /* landing hero reveal (one-time) */
+}
+
+/* ── Respect prefers-reduced-motion globally ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Design tokens: single source for spacing, typography, elevation, color roles */
+:root {
+  /* Spacing scale (px) */
+  --astra-space-1: 4px;
+  --astra-space-2: 8px;
+  --astra-space-3: 12px;
+  --astra-space-4: 16px;
+  --astra-space-5: 20px;
+  --astra-space-6: 24px;
+  --astra-space-8: 32px;
+  --astra-space-10: 40px;
+  --astra-space-12: 48px;
+  /* Typography */
+  --astra-font-tech: var(--font-tech), system-ui, -apple-system, sans-serif;
+  --astra-font-sans: var(--astra-font-tech);
+  --astra-text-h1: 1.875rem;
+  --astra-text-h2: 1.5rem;
+  --astra-text-h3: 1.25rem;
+  --astra-text-body: 0.875rem;
+  --astra-text-label: 0.75rem;
+  --astra-text-caption: 0.6875rem;
+  /* Border radius */
+  --astra-radius: 8px;
+  --astra-radius-lg: 12px;
+  /* Elevation (shadows) */
+  --astra-elevation-1: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --astra-elevation-2: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+  --astra-elevation-3: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.06);
+  /* Color roles */
+  --astra-bg: #f9fafb;
+  --astra-surface: #ffffff;
+  --astra-border: #e5e7eb;
+  --astra-text: #111827;
+  --astra-text-muted: #6b7280;
+  --astra-accent: #2563eb;
+  --astra-accent-hover: #1d4ed8;
+  --astra-danger: #dc2626;
+  --astra-success: #16a34a;
+  --astra-warning: #ca8a04;
+}
+
+.dark {
+  --astra-bg: #0f172a;
+  --astra-surface: #1e293b;
+  --astra-border: #334155;
+  --astra-text: #f1f5f9;
+  --astra-text-muted: #cbd5e1;
+  --astra-accent: #3b82f6;
+  --astra-accent-hover: #60a5fa;
+}
+
+.dark body {
+  background: var(--astra-bg);
+  color: var(--astra-text);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -15,7 +94,13 @@ body {
   padding: 0;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
-  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-family: var(--astra-font-sans);
+  font-size: var(--astra-text-body);
+  color: var(--astra-text);
+}
+
+.font-tech {
+  font-family: var(--astra-font-tech);
 }
 
 @keyframes shimmer {
@@ -140,4 +225,257 @@ body {
 }
 @keyframes astra-spin {
   to { transform: rotate(360deg); }
+}
+
+/* Loading screen effects */
+@keyframes astra-float {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+  50% { transform: translate(20px, -20px) scale(1.05); opacity: 0.6; }
+}
+@keyframes astra-glow {
+  0%, 100% { opacity: 0.3; filter: blur(60px); }
+  50% { opacity: 0.5; filter: blur(80px); }
+}
+@keyframes astra-fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes astra-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Landing page animations */
+@keyframes astra-hero-float {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  33% { transform: translateY(-8px) translateX(4px); }
+  66% { transform: translateY(4px) translateX(-4px); }
+}
+@keyframes astra-blob {
+  0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: scale(1); }
+  50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; transform: scale(1.05); }
+}
+@keyframes astra-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Pipeline flow animations */
+@keyframes astra-pulse-arrow {
+  0%, 100% { opacity: 0.4; transform: translateX(0); }
+  50% { opacity: 1; transform: translateX(4px); }
+}
+@keyframes astra-flow-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+  50% { box-shadow: 0 0 20px 4px rgba(59, 130, 246, 0.3); }
+}
+
+/* Landing: signal-to-story pipeline background */
+
+/* Particles drift from left (signals) toward center (story) */
+@keyframes astra-signal-drift {
+  0%   { transform: translateX(0) translateY(0); opacity: 0; }
+  10%  { opacity: 0.7; }
+  50%  { opacity: 0.5; }
+  90%  { opacity: 0.3; }
+  100% { transform: translateX(45vw) translateY(-8vh); opacity: 0; }
+}
+
+/* Particles fan out from center (story) to right (channels) */
+@keyframes astra-channel-fan {
+  0%   { transform: translateX(0) translateY(0) scale(1); opacity: 0; }
+  15%  { opacity: 0.6; }
+  100% { transform: translateX(42vw) translateY(var(--fan-y, 0px)) scale(0.6); opacity: 0; }
+}
+
+/* Central nexus breathes */
+@keyframes astra-nexus-breathe {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.15; }
+  50%      { transform: translate(-50%, -50%) scale(1.2); opacity: 0.25; }
+}
+
+/* Convergence ring pulses */
+@keyframes astra-ring-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.06; }
+  50%      { transform: translate(-50%, -50%) scale(1.08); opacity: 0.12; }
+}
+
+/* Horizontal pipeline spine glow */
+@keyframes astra-spine-glow {
+  0%, 100% { opacity: 0.08; }
+  50%      { opacity: 0.18; }
+}
+
+/* Stage label float */
+@keyframes astra-stage-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
+
+/* iCyberNinjitsu logo glow animation */
+@keyframes icn-glow-breathe {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.3)) drop-shadow(0 0 20px rgba(59, 130, 246, 0.15)); }
+  50%      { filter: drop-shadow(0 0 12px rgba(99, 102, 241, 0.5)) drop-shadow(0 0 32px rgba(59, 130, 246, 0.25)); }
+}
+.icn-logo-glow {
+  animation: icn-glow-breathe 3s ease-in-out infinite;
+}
+
+/* Apple-style landing: section reveal */
+.astra-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.astra-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.astra-reveal-delay-1 { transition-delay: 0.1s; }
+.astra-reveal-delay-2 { transition-delay: 0.2s; }
+.astra-reveal-delay-3 { transition-delay: 0.3s; }
+.astra-reveal-delay-4 { transition-delay: 0.4s; }
+
+/* Premium hero typography */
+.astra-hero-title {
+  letter-spacing: -0.04em;
+  font-weight: 700;
+}
+.astra-hero-lead {
+  letter-spacing: -0.01em;
+}
+
+/* ═══════════════════════════════════════════════════
+   ICN Motion System — Micro-interactions
+   ═══════════════════════════════════════════════════ */
+
+/* ── Button physics ── */
+.icn-btn {
+  transition: transform var(--icn-dur-micro) var(--icn-ease),
+              box-shadow var(--icn-dur-micro) var(--icn-ease),
+              background var(--icn-dur-micro) var(--icn-ease);
+}
+.icn-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+.icn-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.icn-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+/* Primary button glow on hover */
+.icn-btn-primary:hover:not(:disabled) {
+  box-shadow: 0 4px 16px -2px rgba(59, 130, 246, 0.35);
+}
+/* Destructive — no glow, just darken */
+.icn-btn-danger:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: none;
+}
+
+/* ── Sidebar collapse ── */
+.icn-sidebar {
+  transition: width var(--icn-dur-ui) var(--icn-ease);
+}
+
+/* ── Inspector drawer ── */
+.icn-drawer-enter {
+  animation: icn-slide-in-right var(--icn-dur-ui) var(--icn-ease);
+}
+@keyframes icn-slide-in-right {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+/* ── Skeleton loader ── */
+.icn-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--astra-border) 25%,
+    var(--astra-surface) 50%,
+    var(--astra-border) 75%
+  );
+  background-size: 200% 100%;
+  animation: icn-skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--astra-radius);
+}
+@keyframes icn-skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Nav item active indicator (left pill) ── */
+.icn-nav-active {
+  position: relative;
+}
+.icn-nav-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 25%;
+  bottom: 25%;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--astra-accent);
+  transition: opacity var(--icn-dur-micro) var(--icn-ease);
+}
+
+/* ── Tooltip appear delay (120ms, avoids jitter) ── */
+.icn-tooltip {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--icn-dur-micro) var(--icn-ease);
+  transition-delay: 120ms;
+}
+.group:hover .icn-tooltip,
+*:hover > .icn-tooltip {
+  opacity: 1;
+}
+
+/* ── Card stagger entrance ── */
+.icn-card-enter {
+  animation: icn-card-in var(--icn-dur-ui) var(--icn-ease) both;
+}
+@keyframes icn-card-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.icn-stagger-1 { animation-delay: 50ms; }
+.icn-stagger-2 { animation-delay: 100ms; }
+.icn-stagger-3 { animation-delay: 150ms; }
+.icn-stagger-4 { animation-delay: 200ms; }
+
+/* ── Pipeline HUD ── */
+.icn-hud-node {
+  transition: background var(--icn-dur-micro) var(--icn-ease),
+              border-color var(--icn-dur-micro) var(--icn-ease),
+              color var(--icn-dur-micro) var(--icn-ease);
+}
+.icn-hud-connector {
+  transition: background var(--icn-dur-ui) var(--icn-ease);
+}
+@keyframes icn-hud-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+  50%      { box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.15); }
+}
+.icn-hud-active {
+  animation: icn-hud-pulse 2s ease-in-out infinite;
+}
+
+/* ── Autosave indicator ── */
+.icn-autosave {
+  transition: opacity var(--icn-dur-micro) var(--icn-ease),
+              color var(--icn-dur-micro) var(--icn-ease);
+}
+
+/* ── Toast notification enter ── */
+@keyframes icn-toast-in {
+  from { transform: translateY(-8px) scale(0.97); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+.icn-toast-enter {
+  animation: icn-toast-in var(--icn-dur-ui) var(--icn-ease);
 }

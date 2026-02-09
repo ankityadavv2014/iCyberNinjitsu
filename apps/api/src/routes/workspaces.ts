@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { query } from 'db';
 import { requireAuth } from '../middleware/auth.js';
-import { requireWorkspaceOwner } from '../middleware/workspaceAccess.js';
+import { requireWorkspaceMember, requireWorkspaceOwner } from '../middleware/workspaceAccess.js';
 import { asyncHandler } from '../lib/asyncHandler.js';
 
 export const router = Router({ mergeParams: true });
@@ -10,7 +10,10 @@ router.use(requireAuth);
 
 router.get('/', asyncHandler(async (req, res) => {
   const { rows } = await query<{ id: string; name: string; owner_id: string; paused: boolean; created_at: Date; updated_at: Date }>(
-    'SELECT id, name, owner_id, paused, created_at, updated_at FROM workspaces WHERE owner_id = $1 ORDER BY created_at DESC',
+    `SELECT w.id, w.name, w.owner_id, w.paused, w.created_at, w.updated_at
+     FROM workspaces w
+     INNER JOIN workspace_members wm ON wm.workspace_id = w.id
+     WHERE wm.user_id = $1 ORDER BY w.created_at DESC`,
     [req.userId]
   );
   res.json({
@@ -37,6 +40,10 @@ router.post('/', asyncHandler(async (req, res) => {
     [name.trim(), req.userId]
   );
   const r = rows[0];
+  await query(
+    'INSERT INTO workspace_members (workspace_id, user_id, role) VALUES ($1, $2, $3) ON CONFLICT (workspace_id, user_id) DO NOTHING',
+    [r.id, req.userId, 'owner']
+  );
   res.status(201).json({
     id: r.id,
     name: r.name,
@@ -47,7 +54,7 @@ router.post('/', asyncHandler(async (req, res) => {
   });
 }));
 
-router.get('/:id', requireWorkspaceOwner, asyncHandler(async (req, res) => {
+router.get('/:id', requireWorkspaceMember, asyncHandler(async (req, res) => {
   const id = req.params.id;
   const { rows } = await query<{ id: string; name: string; owner_id: string; paused: boolean; created_at: Date; updated_at: Date }>(
     'SELECT id, name, owner_id, paused, created_at, updated_at FROM workspaces WHERE id = $1',
@@ -68,7 +75,7 @@ router.get('/:id', requireWorkspaceOwner, asyncHandler(async (req, res) => {
   });
 }));
 
-router.patch('/:id', requireWorkspaceOwner, asyncHandler(async (req, res) => {
+router.patch('/:id', requireWorkspaceMember, asyncHandler(async (req, res) => {
   const id = req.params.id;
   const { name, paused } = req.body ?? {};
   const updates: string[] = [];

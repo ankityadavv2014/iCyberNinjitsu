@@ -2,12 +2,12 @@ import { Router } from 'express';
 import { query } from 'db';
 import { createLinkedInClient, decryptTokens } from 'linkedin';
 import { requireAuth } from '../middleware/auth.js';
-import { requireWorkspaceOwner } from '../middleware/workspaceAccess.js';
+import { requireWorkspaceMember } from '../middleware/workspaceAccess.js';
 import { asyncHandler } from '../lib/asyncHandler.js';
 
 export const router = Router({ mergeParams: true });
 
-router.use(requireAuth, requireWorkspaceOwner);
+router.use(requireAuth, requireWorkspaceMember);
 
 /** Duplicates: same approved_post_id with multiple successful, not-rolled-back attempts. Keep oldest; the rest are "duplicate" for rollback. */
 router.get('/duplicates', asyncHandler(async (req, res) => {

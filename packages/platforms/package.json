@@ -1,0 +1,15 @@
+{
+  "name": "platforms",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "linkedin": "file:../linkedin",
+    "shared": "file:../shared"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

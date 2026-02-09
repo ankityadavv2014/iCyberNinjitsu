@@ -5,6 +5,10 @@ export interface RawFeedItem {
   publishedAt?: string;
   sourceName?: string;
   externalId?: string;
+  author?: string;
+  content?: string;
+  platform?: string;
+  engagementMetrics?: Record<string, number>;
   raw?: Record<string, unknown>;
 }
 
@@ -16,6 +20,10 @@ export interface NormalizedTrendItem {
   sourceName: string | null;
   publishedAt: Date | null;
   externalId: string | null;
+  author: string | null;
+  content: string | null;
+  platform: string | null;
+  engagementMetrics: Record<string, number> | null;
   raw: Record<string, unknown>;
 }
 
@@ -46,6 +54,10 @@ export function normalize(item: RawFeedItem): NormalizedTrendItem {
     sourceName: item.sourceName ?? null,
     publishedAt: item.publishedAt ? new Date(item.publishedAt) : null,
     externalId: item.externalId ?? null,
+    author: item.author ?? null,
+    content: item.content ?? null,
+    platform: item.platform ?? null,
+    engagementMetrics: item.engagementMetrics ?? null,
     raw: item.raw ?? {},
   };
 }

@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { query } from 'db';
 import { requireAuth } from '../middleware/auth.js';
-import { requireWorkspaceOwner } from '../middleware/workspaceAccess.js';
+import { requireWorkspaceMember } from '../middleware/workspaceAccess.js';
 import { asyncHandler } from '../lib/asyncHandler.js';
 
 export const router = Router({ mergeParams: true });
 
-router.use(requireAuth, requireWorkspaceOwner);
+router.use(requireAuth, requireWorkspaceMember);
 
 router.get('/', asyncHandler(async (req, res) => {
   const wId = req.workspaceId!;
@@ -17,6 +17,31 @@ router.get('/', asyncHandler(async (req, res) => {
   sql += ' ORDER BY created_at';
   const { rows } = await query<{ id: string; workspace_id: string; keyword: string; weight: number; bundle_id: string | null; created_at: Date }>(sql, params);
   res.json({ items: rows.map((r) => ({ id: r.id, workspaceId: r.workspace_id, keyword: r.keyword, weight: Number(r.weight), bundleId: r.bundle_id, createdAt: r.created_at })) });
+}));
+
+/** Pin a trend item as a topic (creates a topic with keyword from trend title or provided). */
+router.post('/from-trend', asyncHandler(async (req, res) => {
+  const wId = req.workspaceId!;
+  const { trendItemId, keyword, weight, bundleId } = req.body ?? {};
+  if (!trendItemId || typeof trendItemId !== 'string') {
+    res.status(422).json({ code: 'UNPROCESSABLE', message: 'trendItemId required' });
+    return;
+  }
+  const { rows: trend } = await query<{ title: string }>(
+    'SELECT title FROM trend_items WHERE id = $1 AND workspace_id = $2',
+    [trendItemId, wId]
+  );
+  if (trend.length === 0) {
+    res.status(404).json({ code: 'NOT_FOUND', message: 'Trend item not found' });
+    return;
+  }
+  const kw = (typeof keyword === 'string' && keyword.trim()) ? keyword.trim() : trend[0].title.slice(0, 100).trim() || 'trend';
+  const { rows } = await query<{ id: string; workspace_id: string; keyword: string; weight: number; bundle_id: string | null; created_at: Date }>(
+    'INSERT INTO topics (workspace_id, keyword, weight, bundle_id) VALUES ($1, $2, $3, $4) RETURNING id, workspace_id, keyword, weight, bundle_id, created_at',
+    [wId, kw, weight != null ? Number(weight) : 1, bundleId || null]
+  );
+  const r = rows[0];
+  res.status(201).json({ id: r.id, workspaceId: r.workspace_id, keyword: r.keyword, weight: Number(r.weight), bundleId: r.bundle_id, createdAt: r.created_at });
 }));
 
 router.post('/', asyncHandler(async (req, res) => {

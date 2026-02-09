@@ -1,16 +1,17 @@
 import { Router } from 'express';
 import { query } from 'db';
 import { requireAuth } from '../middleware/auth.js';
-import { requireWorkspaceOwner } from '../middleware/workspaceAccess.js';
+import { requireWorkspaceMember } from '../middleware/workspaceAccess.js';
 import { buildAuthUrl, exchangeCode, encryptTokens } from 'linkedin';
 import { getLinkedInConfig } from './providerConfig.js';
 import { asyncHandler } from '../lib/asyncHandler.js';
+import { insertAuditEvent } from '../lib/audit.js';
 
 export const router = Router({ mergeParams: true });
 
 const LINKEDIN_PROVIDER = 'linkedin';
 
-router.get('/linkedin', requireAuth, requireWorkspaceOwner, asyncHandler(async (req, res) => {
+router.get('/linkedin', requireAuth, requireWorkspaceMember, asyncHandler(async (req, res) => {
   const wId = req.workspaceId!;
   const { rows } = await query<{ refresh_at: Date | null }>(
     'SELECT refresh_at FROM credentials WHERE workspace_id = $1 AND provider = $2',
@@ -22,9 +23,10 @@ router.get('/linkedin', requireAuth, requireWorkspaceOwner, asyncHandler(async (
 }));
 
 // DELETE /linkedin -- disconnect (remove OAuth tokens)
-router.delete('/linkedin', requireAuth, requireWorkspaceOwner, asyncHandler(async (req, res) => {
+router.delete('/linkedin', requireAuth, requireWorkspaceMember, asyncHandler(async (req, res) => {
   const wId = req.workspaceId!;
   await query('DELETE FROM credentials WHERE workspace_id = $1 AND provider = $2', [wId, LINKEDIN_PROVIDER]);
+  await insertAuditEvent(wId, req.userId!, 'credential.disconnected', 'credential', LINKEDIN_PROVIDER, { provider: LINKEDIN_PROVIDER });
   res.status(204).send();
 }));
 
@@ -46,11 +48,11 @@ router.get('/linkedin/connect', asyncHandler(async (req, res) => {
     return;
   }
 
-  // Get workspace from URL params and verify ownership
+  // Get workspace from URL params and verify membership
   const workspaceId = req.params.workspaceId;
-  const { rows: wsRows } = await query<{ id: string }>('SELECT id FROM workspaces WHERE id = $1 AND owner_id = $2', [workspaceId, token]);
+  const { rows: wsRows } = await query<{ workspace_id: string }>('SELECT workspace_id FROM workspace_members WHERE workspace_id = $1 AND user_id = $2', [workspaceId, token]);
   if (wsRows.length === 0) {
-    res.status(403).json({ code: 'FORBIDDEN', message: 'Not workspace owner' });
+    res.status(403).json({ code: 'FORBIDDEN', message: 'Not a workspace member' });
     return;
   }
 
@@ -68,7 +70,7 @@ router.get('/linkedin/connect', asyncHandler(async (req, res) => {
 }));
 
 // POST /linkedin/token -- manually store an access token (from LinkedIn token generator)
-router.post('/linkedin/token', requireAuth, requireWorkspaceOwner, asyncHandler(async (req, res) => {
+router.post('/linkedin/token', requireAuth, requireWorkspaceMember, asyncHandler(async (req, res) => {
   const wId = req.workspaceId!;
   const { access_token, owner_urn } = req.body ?? {};
   if (!access_token || typeof access_token !== 'string' || access_token.trim().length === 0) {
@@ -164,6 +166,7 @@ export async function handleLinkedInCallback(req: { query: { code?: string; stat
        ON CONFLICT (workspace_id, provider) DO UPDATE SET encrypted_tokens = EXCLUDED.encrypted_tokens, refresh_at = EXCLUDED.refresh_at`,
       [workspaceId, LINKEDIN_PROVIDER, encrypted, refreshAt]
     );
+    await insertAuditEvent(workspaceId, null, 'credential.connected', 'credential', LINKEDIN_PROVIDER, { provider: LINKEDIN_PROVIDER });
   } catch {
     res.redirect(302, `${appUrl}/operate/settings?error=exchange`);
     return;

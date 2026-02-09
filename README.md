@@ -1,6 +1,6 @@
-# Astra
+# iCyberNinjitsu
 
-LinkedIn social media automation: Research → Write → Approvals → Schedule → Post.
+Multi-channel social operations platform: Signal → Trend → Draft → Govern → Publish → Moderate.
 
 **Deploy:** See [DEPLOY.md](./DEPLOY.md) for pushing to GitHub and publishing the frontend on Vercel (plus backend options).
 

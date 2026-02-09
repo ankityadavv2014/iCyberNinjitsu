@@ -15,7 +15,21 @@ export interface Workspace {
   updatedAt: Date;
 }
 
-export type SourceType = 'rss' | 'url' | 'trend_provider';
+export type WorkspaceRole = 'owner' | 'admin' | 'editor' | 'viewer';
+
+export interface WorkspaceMember {
+  id: string;
+  workspaceId: string;
+  userId: string;
+  role: WorkspaceRole;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type SourceType = 'rss' | 'url' | 'trend_provider' | 'reddit' | 'quora' | 'twitter' | 'linkedin';
+
+/** PRD: status active | candidate | disabled. tenant_id = workspace_id. */
+export type SourceStatus = 'active' | 'candidate' | 'disabled';
 
 export interface Source {
   id: string;
@@ -23,7 +37,20 @@ export interface Source {
   type: SourceType;
   config: Record<string, unknown>;
   enabled: boolean;
+  status: SourceStatus;
+  trustProfileId: string | null;
   createdAt: Date;
+}
+
+export interface SourceTrustProfile {
+  id: string;
+  sourceId: string;
+  credibilityScore: number;
+  historicalAccuracy: number | null;
+  biasVector: Record<string, unknown> | null;
+  latencyScore: number | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Topic {
@@ -34,6 +61,7 @@ export interface Topic {
   createdAt: Date;
 }
 
+/** PRD Signal: tenant_id = workspace_id. */
 export interface TrendItem {
   id: string;
   workspaceId: string;
@@ -46,6 +74,11 @@ export interface TrendItem {
   score: number | null;
   raw: Record<string, unknown> | null;
   fetchedAt: Date;
+  platform: string | null;
+  author: string | null;
+  publishedAt: Date | null;
+  content: string | null;
+  engagementMetrics: Record<string, number> | null;
 }
 
 export type DraftStatus = 'draft' | 'pending_review' | 'approved' | 'rejected';
@@ -54,10 +87,15 @@ export interface DraftPost {
   id: string;
   workspaceId: string;
   trendItemId: string | null;
+  topicId: string | null;
+  viewpointId: string | null;
+  platform: string;
   content: string;
   postType: string;
   templateId: string | null;
   status: DraftStatus;
+  confidenceScore: number | null;
+  version: number;
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;

@@ -1,5 +1,5 @@
 {
-  "name": "astra",
+  "name": "icyberninjitsu",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -18,7 +18,9 @@
     "audit": "pnpm audit",
     "audit:fix": "pnpm audit --fix",
     "dev:start": "bash scripts/dev-start.sh all",
-    "dev:restart": "bash scripts/dev-start.sh"
+    "dev:restart": "bash scripts/dev-start.sh",
+    "logo": "node --import tsx scripts/logo.ts",
+    "github:push": "node --import tsx scripts/github-create-and-push.ts"
   },
   "engines": {
     "node": ">=18"
