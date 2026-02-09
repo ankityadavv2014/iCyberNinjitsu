@@ -1,0 +1,143 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+}
+
+@keyframes shimmer {
+  0%, 100% { transform: translateX(-100%); }
+  50% { transform: translateX(200%); }
+}
+
+/* Critical landing styles (apply even if Tailwind fails) */
+.astra-landing {
+  min-height: 100vh;
+  margin: 0;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 25%, #0f172a 50%, #020617 100%);
+  color: #fff;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.astra-landing .astra-landing-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(59, 130, 246, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+.astra-landing .astra-landing-inner {
+  position: relative;
+  z-index: 10;
+  max-width: 42rem;
+  margin: 0 auto;
+}
+.astra-landing h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  margin: 0 0 0.75rem;
+  color: #fff;
+}
+.astra-landing .astra-landing-tagline {
+  font-size: 1.125rem;
+  color: #94a3b8;
+  margin: 0 0 2.5rem;
+  font-weight: 500;
+}
+.astra-landing .astra-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background: #2563eb;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.astra-landing .astra-cta:hover {
+  background: #1d4ed8;
+  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.4);
+}
+.astra-landing .astra-dev {
+  margin-top: 3.5rem;
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+.astra-landing .astra-dev-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.astra-landing .astra-dev code {
+  background: #1e293b;
+  color: #cbd5e1;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  border: 1px solid #334155;
+}
+
+/* Critical loading screen (works without Tailwind) */
+.astra-loading {
+  min-height: 100vh;
+  margin: 0;
+  padding: 3rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 50%, #020617 100%);
+  color: #fff;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  position: relative;
+}
+.astra-loading .astra-loading-spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 2px solid rgba(37, 99, 235, 0.3);
+  border-top-color: #2563eb;
+  border-radius: 0.75rem;
+  animation: astra-spin 0.8s linear infinite;
+}
+.astra-loading .astra-loading-text {
+  margin-top: 1.25rem;
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+@keyframes astra-spin {
+  to { transform: rotate(360deg); }
+}

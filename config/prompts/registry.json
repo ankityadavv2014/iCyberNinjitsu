@@ -1,0 +1,40 @@
+{
+  "version": "1.0.0",
+  "prompts": [
+    {
+      "id": "insight",
+      "postType": "insight",
+      "inputs": ["title", "summary", "source", "tone", "citationRule"],
+      "outputs": "Single post text",
+      "constraints": { "maxLength": 3000, "requireSourceIfCitation": true }
+    },
+    {
+      "id": "how_to",
+      "postType": "how-to",
+      "inputs": ["title", "summary", "steps", "tone"],
+      "outputs": "Single post text",
+      "constraints": { "maxLength": 3000 }
+    },
+    {
+      "id": "news",
+      "postType": "news",
+      "inputs": ["title", "summary", "source", "tone"],
+      "outputs": "Single post text",
+      "constraints": { "maxLength": 3000, "claimCheck": true }
+    },
+    {
+      "id": "contrarian",
+      "postType": "contrarian",
+      "inputs": ["title", "summary", "source", "tone"],
+      "outputs": "Single post text",
+      "constraints": { "maxLength": 3000 }
+    },
+    {
+      "id": "thread",
+      "postType": "thread",
+      "inputs": ["title", "summary", "source", "tone"],
+      "outputs": "Array of post texts",
+      "constraints": { "maxLengthPerPart": 3000 }
+    }
+  ]
+}

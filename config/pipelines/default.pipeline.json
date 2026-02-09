@@ -1,0 +1,16 @@
+{
+  "id": "default",
+  "name": "Default pipeline",
+  "triggers": [
+    { "type": "cron", "schedule": "0 */6 * * *" },
+    { "type": "manual" }
+  ],
+  "steps": [
+    { "id": "ingest_sources", "type": "ingest" },
+    { "id": "rank", "type": "rank" },
+    { "id": "generate", "type": "generate", "config": { "postType": "insight" } },
+    { "id": "human_review", "type": "gate", "config": { "required": true } },
+    { "id": "schedule", "type": "schedule", "config": { "defaultScheduledFor": "next_business_9am" } }
+  ],
+  "approvalRequired": true
+}

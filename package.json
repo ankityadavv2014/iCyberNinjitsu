@@ -1,0 +1,33 @@
+{
+  "name": "astra",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm run --parallel dev",
+    "dev:web": "cd apps/web && npm run dev",
+    "dev:api": "node --env-file=.env --import tsx apps/api/src/index.ts",
+    "dev:worker": "node --env-file=.env --import tsx apps/worker/src/index.ts",
+    "build": "pnpm -r run build",
+    "lint": "pnpm -r run lint",
+    "db:migrate": "node --import tsx scripts/migrate.ts",
+    "db:generate": "pnpm --filter db generate",
+    "cleanup:posts": "node --env-file=.env --import tsx scripts/cleanup-runaway-posts.ts",
+    "stop-schedule": "node --env-file=.env --import tsx scripts/stop-and-reset-schedule.ts",
+    "test:e2e": "playwright test tests/e2e",
+    "playwright:install": "npx playwright install",
+    "audit": "pnpm audit",
+    "audit:fix": "pnpm audit --fix",
+    "dev:start": "bash scripts/dev-start.sh all",
+    "dev:restart": "bash scripts/dev-start.sh"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "workspaces": ["apps/*", "packages/*"],
+"packageManager": "pnpm@9.0.0",
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "pg": "^8.13.0",
+    "tsx": "^4.19.0"
+  }
+}

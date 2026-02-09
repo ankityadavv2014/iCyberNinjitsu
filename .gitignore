@@ -1,0 +1,14 @@
+node_modules
+.env
+.env.local
+.env.*.local
+dist
+.next
+.turbo
+*.log
+.DS_Store
+coverage
+.vercel
+.playwright-browsers
+test-results
+playwright-report
