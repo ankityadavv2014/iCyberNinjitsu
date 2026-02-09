@@ -75,11 +75,12 @@ router.get('/', asyncHandler(async (req, res) => {
   const total = parseInt(countResult.rows[0]?.count ?? '0', 10);
   const rows = listResult.rows;
 
-  const items = await Promise.all(rows.map(async (r: DraftRow & { publish_failed_reason: string | null }) => {
-    const evidence = await getEvidenceForTrendItem(r.trend_item_id);
+  const items = await Promise.all(rows.map(async (r) => {
+    const row = r as DraftRow & { publish_failed_reason: string | null };
+    const evidence = await getEvidenceForTrendItem(row.trend_item_id);
     return {
-      ...mapDraft(r),
-      publishFailedReason: (r as any).publish_failed_reason ?? undefined,
+      ...mapDraft(row),
+      publishFailedReason: row.publish_failed_reason ?? undefined,
       evidence: evidence ?? undefined,
     };
   }));
@@ -229,7 +230,7 @@ router.post('/:id/images', asyncHandler(async (req, res) => {
 }));
 
 router.get('/:id/versions', asyncHandler(async (req, res) => {
-  const { rows: draft } = await query<{ version: number; content: string }>('SELECT version, content FROM draft_posts WHERE id = $1 AND workspace_id = $2', [req.params.id, req.workspaceId]);
+  const { rows: draft } = await query<{ version: number; content: string; created_at: Date }>('SELECT version, content, created_at FROM draft_posts WHERE id = $1 AND workspace_id = $2', [req.params.id, req.workspaceId]);
   if (draft.length === 0) { res.status(404).json({ code: 'NOT_FOUND' }); return; }
   const { rows: history } = await query<{ version: number; content: string; created_at: Date }>(
     'SELECT version, content, created_at FROM draft_versions WHERE draft_post_id = $1 ORDER BY version ASC',
@@ -237,7 +238,7 @@ router.get('/:id/versions', asyncHandler(async (req, res) => {
   );
   const currentVersion = draft[0].version;
   const byVersion = new Map(history.map((r) => [r.version, { version: r.version, content: r.content, createdAt: r.created_at }]));
-  byVersion.set(currentVersion, { version: currentVersion, content: draft[0].content, createdAt: null });
+  byVersion.set(currentVersion, { version: currentVersion, content: draft[0].content, createdAt: draft[0].created_at });
   const items = Array.from(byVersion.entries())
     .map(([, v]) => ({ ...v, current: v.version === currentVersion }))
     .sort((a, b) => b.version - a.version);

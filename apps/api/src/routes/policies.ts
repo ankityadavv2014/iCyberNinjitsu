@@ -13,7 +13,14 @@ router.get('/', asyncHandler(async (req, res) => {
     'SELECT id, workspace_id, kind, config FROM policy_rules WHERE workspace_id = $1 ORDER BY kind',
     [req.workspaceId]
   );
-  res.json({ items: rows.map((r: { id: string; workspace_id: string; kind: string; config: unknown }) => ({ id: r.id, workspaceId: r.workspace_id, kind: r.kind, config: r.config })) });
+  res.json({
+    items: rows.map((r) => ({
+      id: (r as any).id,
+      workspaceId: (r as any).workspace_id,
+      kind: (r as any).kind,
+      config: (r as any).config,
+    })),
+  });
 }));
 
 router.post('/', asyncHandler(async (req, res) => {

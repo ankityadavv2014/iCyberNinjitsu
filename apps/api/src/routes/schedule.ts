@@ -22,14 +22,14 @@ router.get('/', asyncHandler(async (req, res) => {
   sql += ' ORDER BY sj.created_at DESC LIMIT 100';
   const { rows } = await query(sql, params);
   res.json({
-    items: rows.map((r: { id: string; approved_post_id: string; status: string; job_id: string | null; attempts: unknown; created_at: Date; updated_at: Date }) => ({
-      id: r.id,
-      approvedPostId: r.approved_post_id,
-      status: r.status,
-      jobId: r.job_id,
-      attempts: r.attempts,
-      createdAt: r.created_at,
-      updatedAt: r.updated_at,
+    items: rows.map((r) => ({
+      id: (r as any).id,
+      approvedPostId: (r as any).approved_post_id,
+      status: (r as any).status,
+      jobId: (r as any).job_id,
+      attempts: (r as any).attempts,
+      createdAt: (r as any).created_at,
+      updatedAt: (r as any).updated_at,
     })),
   });
 }));
